@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html>
+
+<body>
+
+  <script src="./main.js" type="text/javascript"></script> 
+
+  <select id ="ddl" name="ddl" onmousedown="this.value='';" onchange="getAllWineRatingsFromShop(this.value);">
+    <option value='-'>Select Wine Shop...</option>
+    <option value='majestic'>Majestic</option>
+    <option value='laithwaites'>Laithwaite's</option>
+    <option value='waitrose'>Waitrose</option>
+    <option value='virgin'>Virgin Wines</option>
+    <option value='slurp'>Slurp</option>
+    <option value='honestgrapes'>Honest Grapes</option>
+  </select>
+
+  <div id="result-sorted-by-value"></div>
+  <br><br><br><br><br>
+  <div id="result-sorted-by-rating"></div>
+  <br><br><br><br><br>
+  <div id="progress"></div>
+
+</body>
+
+</html>
