@@ -1,10 +1,19 @@
 const proxyUrl = "https://cors-anywhere.herokuapp.com/";
-const majesticWineUrlTemplate = "https://www.majestic.co.uk/wine?pageSize=[PAGESIZE]&pageNum=[PAGENO]";
-const laithwaitesUrlTemplate = "https://www.laithwaites.co.uk/wines?No=[WINENO]#page-[PAGENO]";
-const waitroseUrlTemplate = "https://www.waitrosecellar.com/webapp/wcs/stores/servlet/CategoryNavigationResultsView?pageSize=[PAGESIZE]&manufacturer=&searchType=&resultCatEntryType=&catalogId=10551&categoryId=1043025&langId=-1&storeId=10701&sType=SimpleSearch&filterFacet=&metaData=aXNDb3Jwb3JhdGVXaW5lOiJOIg%3D%3D&beginIndex=[BEGININDEX]&contentBeginIndex=0&facet=&resultType=products&orderBy=&viewAll=false&maxPrice=&minPrice=&facetSnapshot=&identifier=1595064975949";
-const virginWinesUrlTemplate = "https://www.virginwines.co.uk/browse?page=[PAGENO]";
-const slurpUrlTemplate = "https://www.slurp.co.uk/wine?p=[PAGENO]";
-const honestGrapesUrlTemplate = "https://www.honestgrapes.co.uk/wines/all-wines?p=[PAGENO]";
+
+const majesticWineUrlTemplates = ["https://www.majestic.co.uk/wine?pageSize=[PAGESIZE]&pageNum=[PAGENO]"];
+const laithwaitesUrlTemplates = ["https://www.laithwaites.co.uk/wines?No=[WINENO]#page-[PAGENO]"];
+const waitroseUrlTemplates = ["https://www.waitrosecellar.com/webapp/wcs/stores/servlet/CategoryNavigationResultsView?pageSize=[PAGESIZE]&manufacturer=&searchType=&resultCatEntryType=&catalogId=10551&categoryId=1043025&langId=-1&storeId=10701&sType=SimpleSearch&filterFacet=&metaData=aXNDb3Jwb3JhdGVXaW5lOiJOIg%3D%3D&beginIndex=[BEGININDEX]&contentBeginIndex=0&facet=&resultType=products&orderBy=&viewAll=false&maxPrice=&minPrice=&facetSnapshot=&identifier=1595064975949"];
+const virginWinesUrlTemplates = ["https://www.virginwines.co.uk/browse?page=[PAGENO]"];
+const slurpUrlTemplates = ["https://www.slurp.co.uk/wine?p=[PAGENO]"];
+const honestGrapesUrlTemplates = ["https://www.honestgrapes.co.uk/wines/all-wines?p=[PAGENO]"];
+const bbrUrlTemplates = [
+   "https://www.bbr.com/offer/red-wines?q=:bbr-relevance:inStockFlag:true:color:Red:approvalStatus:APPROVED&sort=bbr-relevance&sort=bbr-relevance&page=[PAGENO]&pageSize=[PAGESIZE]",
+   "https://www.bbr.com/offer/white-wines?q=:bbr-relevance:inStockFlag:true:color:White:approvalStatus:APPROVED&sort=bbr-relevance&sort=bbr-relevance&page=[PAGENO]&pageSize=[PAGESIZE]",
+   "https://www.bbr.com/category-rose?q=:bbr-relevance:inStockFlag:true:approvalStatus:APPROVED&sort=bbr-relevance&sort=bbr-relevance&page=[PAGENO]&pageSize=[PAGESIZE]",
+   "https://www.bbr.com/region-539-champagne?q=:bbr-relevance:inStockFlag:true:approvalStatus:APPROVED&sort=bbr-relevance&sort=bbr-relevance&page=[PAGENO]&pageSize=[PAGESIZE]",
+   "https://www.bbr.com/category-sparkling-wine?q=:bbr-relevance:inStockFlag:true:approvalStatus:APPROVED&sort=bbr-relevance&sort=bbr-relevance&page=[PAGENO]&pageSize=[PAGESIZE]",
+   "https://www.bbr.com/region-615-port-wine?q=:bbr-relevance:inStockFlag:true:approvalStatus:APPROVED&sort=bbr-relevance&sort=bbr-relevance&page=[PAGENO]&pageSize=[PAGESIZE]"
+]
 
 const vivinoSearchUrlTemplate = "https://www.vivino.com/search/wines?q=";
 
@@ -14,77 +23,85 @@ const timeoutMS = 20000;
 function getAllWineRatingsFromShop(wineShop) {
    switch (wineShop) {
       case "majestic":
-         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, resolveMajesticUrl, parseMajesticWines); break;
+         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, majesticWineUrlTemplates, resolveMajesticUrl, parseMajesticWines); break;
       case "laithwaites":
-         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, resolveLaithwaitesUrl, parseLaithwaitesWines); break;
+         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, laithwaitesUrlTemplates, resolveLaithwaitesUrl, parseLaithwaitesWines); break;
       case "waitrose":
-         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, resolveWaitroseUrl, parseWaitroseWines); break;
+         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, waitroseUrlTemplates, resolveWaitroseUrl, parseWaitroseWines); break;
       case "virgin":
-         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, resolveVirginUrl, parseVirginWines); break;
+         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, virginWinesUrlTemplates, resolveVirginUrl, parseVirginWines); break;
       case "slurp":
-         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, resolveSlurpUrl, parseSlurpWines, getSlurpLimit); break;
+         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, slurpUrlTemplates, resolveSlurpUrl, parseSlurpWines, getSlurpLimit); break;
       case "honestgrapes":
-         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, resolveHonestGrapesUrl, parseHonestGrapesWines, getHonestGrapesLimit); break;
+         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, honestGrapesUrlTemplates, resolveHonestGrapesUrl, parseHonestGrapesWines, getHonestGrapesLimit); break;
+      case "bbr":
+         getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, bbrUrlTemplates, resolveBbrUrl, parseBbr); break;
    }
 }
 
-function getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, resolveWineUrlFn, parseWinePageFn, parseWineLimitFn) {
+function getAllWineRatings(proxyUrl, vivinoSearchUrlTemplate, wineUrlTemplates, resolveWineUrlFn, parseWinePageFn, parseWineLimitFn) {
 
-   fetchAllWines(proxyUrl, resolveWineUrlFn, parseWinePageFn, parseWineLimitFn)                             // Get all wines
+   fetchAllWines(proxyUrl, wineUrlTemplates, resolveWineUrlFn, parseWinePageFn, parseWineLimitFn)                             // Get all wines
       .then(wineNamePromisesArray => Promise.all(wineNamePromisesArray))                  // Wait for all wine request promises to resolve
       .then(wineArray => fetchAllRatings(proxyUrl, vivinoSearchUrlTemplate, wineArray))   // Get ratings for all wines
       .then(wineRatingPromisesArray => Promise.all(wineRatingPromisesArray))              // Wait for all rating request promises to resolve
       .then(wineArray => outputSortedWines(wineArray));                                   // Sort and output rated wines
 }
 
-async function fetchAllWines(proxyUrl, resolveWineUrlFn, parseWinePageFn, parseWineLimitFn) {
-   let pageNum = 0;
-   let winesOnPage = 0;
-   var winePromisesArray = [];
-   
+async function fetchAllWines(proxyUrl, wineUrlTemplates, resolveWineUrlFn, parseWinePageFn, parseWineLimitFn) {  
    var limit = Number.MAX_VALUE;
    if (parseWineLimitFn !== undefined) {
       limit = await parseWineLimitFn(proxyUrl, resolveWineUrlFn);
    }
    
-   // Iterate through all wine website pages
-   do {
-      const pageWinePromisesArray = await fetchWinePage(proxyUrl, resolveWineUrlFn(pageNum), parseWinePageFn);
-      winePromisesArray = winePromisesArray.concat(pageWinePromisesArray);
-      winesOnPage = pageWinePromisesArray.length;
-      pageNum++;
-      if (winePromisesArray.length >= limit) break;
-   // } while (false);
-   } while (winesOnPage > 0);
+   var winePromisesArray = [];
+   for (var i = 0, l = wineUrlTemplates.length; i < l; i++) {
+      let pageNum = 0;
+      let winesOnPage = 0;
+
+      // Iterate through all wine website pages
+      do {
+         const pageWinePromisesArray = await fetchWinePage(proxyUrl, resolveWineUrlFn(wineUrlTemplates[i], pageNum), parseWinePageFn);
+         winePromisesArray = winePromisesArray.concat(pageWinePromisesArray);
+         winesOnPage = pageWinePromisesArray.length;
+         pageNum++;
+         if (winePromisesArray.length >= limit) break;
+      // } while (false);
+      } while (winesOnPage > 0);
+   }
 
    return winePromisesArray;
 }
 
-function resolveMajesticUrl(pageNum) {
-   return majesticWineUrlTemplate.replace("[PAGESIZE]", 50).replace("[PAGENO]", pageNum);
+function resolveMajesticUrl(urlTemplate, pageNum) {
+   return urlTemplate.replace("[PAGESIZE]", 50).replace("[PAGENO]", pageNum);
 }
 
-function resolveLaithwaitesUrl(pageNum) {
-   return laithwaitesUrlTemplate.replace("[WINENO]", pageNum * 10).replace("[PAGENO]", pageNum + 1);
+function resolveLaithwaitesUrl(urlTemplate, pageNum) {
+   return urlTemplate.replace("[WINENO]", pageNum * 10).replace("[PAGENO]", pageNum + 1);
 }
 
-function resolveWaitroseUrl(pageNum) {
+function resolveWaitroseUrl(urlTemplate, pageNum) {
    let pageSize = 24;
-   return waitroseUrlTemplate.replace("[PAGESIZE]", pageSize).replace("[BEGININDEX]", pageSize * pageNum);
+   return urlTemplate.replace("[PAGESIZE]", pageSize).replace("[BEGININDEX]", pageSize * pageNum);
 }
 
-function resolveVirginUrl(pageNum) {
-   return virginWinesUrlTemplate.replace("[PAGENO]", pageNum + 1);
+function resolveVirginUrl(urlTemplate, pageNum) {
+   return urlTemplate.replace("[PAGENO]", pageNum + 1);
 }
 
-function resolveSlurpUrl(pageNum) {
-   return slurpUrlTemplate.replace("[PAGENO]", pageNum + 1);
+function resolveSlurpUrl(urlTemplate, pageNum) {
+   return urlTemplate.replace("[PAGENO]", pageNum + 1);
 }
 
-function resolveHonestGrapesUrl(pageNum) {
-   return honestGrapesUrlTemplate.replace("[PAGENO]", pageNum + 1);
+function resolveHonestGrapesUrl(urlTemplate, pageNum) {
+   return urlTemplate.replace("[PAGENO]", pageNum + 1);
 }
 
+function resolveBbrUrl(urlTemplate, pageNum) {
+   let pageSize = 30;
+   return urlTemplate.replace("[PAGENO]", pageNum).replace("[PAGESIZE]", pageSize);
+}
 
 
 function fetchWinePage(proxyUrl, wineUrl, parseWinePageFn) {
@@ -296,7 +313,38 @@ async function parseHonestGrapesWines(html) {
    return wineNameAndPriceArray;
 }
 
+async function parseBbr(html) {
+   var wineNameAndPriceArray = [];
 
+   // Initialize the DOM parser
+   const parser = new DOMParser();
+
+   // Parse the text
+   const document = parser.parseFromString(html, "text/html");
+   
+   const productDetailsElements = document.getElementsByClassName('productCardContent');
+   
+   // Find and iterate through all the wines listed on the page
+   for (var i = 0, l = productDetailsElements.length; i < l; i++) {
+      const wineNameElement = productDetailsElements[i].getElementsByClassName('productListTitle')[0];
+      const wineName = wineNameElement.outerText.trim();
+
+      const productPriceElements = productDetailsElements[i].getElementsByClassName('productPrice')[0];
+      const winePriceStr = productPriceElements.outerText.trim();
+      
+      var winePriceFloat = 0.0;
+      const prices = winePriceStr.match(/[£]\d+.\d+/g);
+      if (prices !== null) {
+         winePriceFloat = parseFloat(prices[0].substr(1));
+      }
+
+      output("progress", wineName + " (£" + winePriceFloat + ")");
+
+      wineNameAndPriceArray.push([wineName, winePriceFloat]);
+   }
+
+   return wineNameAndPriceArray;
+}
 
 async function getSlurpLimit(proxyUrl, resolveWineUrlFn) {
    return await fetchWinePage(proxyUrl, resolveWineUrlFn(0), parseSlurpAndHonestGrapesLimit);
