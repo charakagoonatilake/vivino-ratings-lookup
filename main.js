@@ -333,9 +333,9 @@ async function parseBbr(html) {
       const winePriceStr = productPriceElements.outerText.trim();
       
       var winePriceFloat = 0.0;
-      const prices = winePriceStr.match(/[£]\d+.\d+/g);
+      const prices = winePriceStr.match(/[£]\d+[,]?\d+.\d+/g);
       if (prices !== null) {
-         winePriceFloat = parseFloat(prices[0].substr(1));
+         winePriceFloat = parseFloat(prices[0].replace(/[^0-9.]/gi, ''));
       }
 
       output("progress", wineName + " (£" + winePriceFloat + ")");
