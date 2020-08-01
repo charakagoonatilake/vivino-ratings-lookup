@@ -104,10 +104,23 @@ function resolveBbrUrl(urlTemplate, pageNum) {
 }
 
 
-function fetchWinePage(proxyUrl, wineUrl, parseWinePageFn) {
+async function fetch_retry(url, n) {
+   try {
+      return await fetch(url);
+   } catch(err) {
+      // console.log("Error fetching URL: " + url);
+      // console.log("Fetch error: " + err);
+      if (n === 1) throw err;
+
+      // console.log("Fetch retries remaining: ", n - 1);
+      return await fetch_retry(url, n - 1);
+   }
+}
+
+function fetchWinePage(proxyUrl, wineUrl, parseWinePageFn) {  
    let url = proxyUrl + wineUrl;
    // console.log(url);
-   const pageObject = fetch(url)
+   const pageObject = fetch_retry(url, 10000)
       .then(response => response.text())
       .then(responseText => parseWinePageFn(responseText));
 
@@ -396,7 +409,7 @@ async function fetchAllRatings(proxyUrl, vivinoSearchUrlTemplate, wineNameAndPri
 function fetchVivinoRating(proxyUrl, vivinoSearchUrlTemplate, wineNameAndPrice) {
    var url = proxyUrl + vivinoSearchUrlTemplate + encodeURIComponent(wineNameAndPrice[0]);
 
-   const ratingArray = fetch(url)
+   const ratingArray = fetch_retry(url,10000)
       .then(response => response.text())
       .then(responseText => parseVivinoRating(responseText))
       .then(ratingAndReviewCount => [wineNameAndPrice, ratingAndReviewCount, ratingAndReviewCount[0] / wineNameAndPrice[1]]);
